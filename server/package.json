@@ -1,0 +1,35 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "lint": "node scripts/lintServer.js",
+    "test": "node tests/api-contract.smoke.js",
+    "test:contracts": "node tests/api-contract.smoke.js",
+    "proof:28d": "node scripts/export28DayProof.js",
+    "data:purge-synthetic": "node scripts/purgeSyntheticData.js",
+    "onboarding:push": "node scripts/generateOnboardingPush.js",
+    "paid:convert": "node scripts/convertUserToPaid.js",
+    "growth:friday": "node scripts/fridayGrowthCycle.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

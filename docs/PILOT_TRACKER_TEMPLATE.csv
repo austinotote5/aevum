@@ -1,0 +1,2 @@
+pilot_id,org_name,contact_name,contact_email,segment,seats,start_date,end_date,status,last_demo_date,next_followup_date,activation_rate_pct,adherence_completion_pct,readiness_delta_pct,risk_reduction_pct,retention_28d_pct,net_expansion_mrr,user_value_score_1_10,decision,notes
+PILOT-001,,,,,,,,Prospect,,,,,,,,,,,

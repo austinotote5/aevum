@@ -1,0 +1,77 @@
+{
+  "generatedAt": "2026-03-26T17:40:48.005Z",
+  "window": {
+    "startDateIso": "2026-02-27",
+    "endDateIso": "2026-03-26"
+  },
+  "integrity": {
+    "includeSyntheticInBiometricMetrics": false,
+    "excludedEmailDomains": [
+      "aevum.dev",
+      "example.com",
+      "test.local",
+      "localhost"
+    ],
+    "totalBiometricEntries": 7,
+    "syntheticBiometricEntries": 0,
+    "syntheticBiometricPct": 0
+  },
+  "kpis": {
+    "cohort": {
+      "totalActive": 1,
+      "totalPaid": 0,
+      "activated": 1,
+      "activationRatePct": 100,
+      "conversionPct": 0,
+      "userIds": [
+        "85c80dd5-7e66-4264-8c6e-6465a8c4db54"
+      ]
+    },
+    "adherence": {
+      "protocolCount": 3,
+      "actionableCount": 9,
+      "completedCount": 0,
+      "completionRatePct": 0
+    },
+    "outcomes": {
+      "dataPoints": 7,
+      "readiness": {
+        "baseline": 77.8,
+        "current": 85.2,
+        "deltaPct": 9.4
+      },
+      "hrv": {
+        "baseline": 60,
+        "current": 68,
+        "deltaPct": 13.3
+      },
+      "sleepMinutes": {
+        "baseline": 422.7,
+        "current": 452.7,
+        "deltaPct": 7.1
+      },
+      "risk": {
+        "baseline": 0,
+        "current": 0,
+        "reductionPct": 0
+      }
+    },
+    "retention": {
+      "eligibleUsers": 0,
+      "retainedUsers": 0,
+      "retentionPct": 0
+    },
+    "monetization": {
+      "expansionMrr": 0,
+      "contractionMrr": 0,
+      "netExpansionMrr": 0
+    }
+  },
+  "narrative": [
+    "Activation 100% across active users.",
+    "Adherence completion 0% over 3 protocols.",
+    "Readiness delta 9.4% and risk reduction 0% in 28-day window.",
+    "28-day retention 0% among eligible users.",
+    "Net expansion MRR 0 in the same window."
+  ]
+}

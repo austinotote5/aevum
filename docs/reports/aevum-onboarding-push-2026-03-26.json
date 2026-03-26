@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-03-26T17:39:11.543Z",
+  "integrity": {
+    "excludedEmailDomains": [
+      "aevum.dev",
+      "example.com",
+      "test.local",
+      "localhost"
+    ],
+    "mode": "real-user-only"
+  },
+  "activationModel": {
+    "thresholdReadings28d": 3,
+    "targetActivationPct": 70,
+    "totalActive": 1,
+    "activatedUsers": 1,
+    "activationRatePct": 100,
+    "targetActivatedUsers": 1,
+    "usersNeededForTarget": 0
+  },
+  "candidates": []
+}
