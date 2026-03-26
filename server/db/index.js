@@ -1,5 +1,22 @@
 const { Pool } = require('pg');
 
+const parseBool = (value, fallback = false) => {
+  if (value === undefined || value === null || value === '') return fallback;
+  return ['1', 'true', 'yes', 'y', 'on'].includes(String(value).trim().toLowerCase());
+};
+
+const getSslConfig = () => {
+  const isProduction = (process.env.NODE_ENV || 'development') === 'production';
+  if (!isProduction) {
+    return false;
+  }
+
+  // Some managed Postgres providers (for example, poolers) require SSL but present
+  // a cert chain that fails strict verification from hosted runtimes.
+  const rejectUnauthorized = parseBool(process.env.DB_SSL_REJECT_UNAUTHORIZED, true);
+  return { rejectUnauthorized };
+};
+
 // Pool maintains a set of reusable database connections.
 // Creating a new connection per request is expensive (~50ms each).
 // A pool keeps connections alive and hands them out on demand —
@@ -13,9 +30,7 @@ const pool = new Pool({
   max:      20,   // maximum simultaneous connections in the pool
   idleTimeoutMillis:    30000, // close idle connections after 30 seconds
   connectionTimeoutMillis: 2000, // fail fast if DB is unreachable (2 seconds)
-  ssl: process.env.NODE_ENV === 'production'
-    ? { rejectUnauthorized: true }  // enforce SSL certificate in production
-    : false,                        // no SSL needed locally
+  ssl: getSslConfig(),
 });
 
 // Test the connection on startup — fail loudly rather than silently
