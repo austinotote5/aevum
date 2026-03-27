@@ -3043,10 +3043,16 @@ const NAV   = [
   { id:"nutrition",  label:"Nutrition"  },
   { id:"enterprise", label:"Enterprise" },
 ];
+const STARTER_NAV_IDS = new Set(["overview", "coach", "insights", "nutrition"]);
 
 export default function Aevum() {
   const [page, setPage] = useState("overview");
   const [stamp, setStamp] = useState(0);
+  const [appMode, setAppMode] = useState(() => {
+    if (typeof window === "undefined") return "starter";
+    const saved = window.localStorage.getItem("aevum_mode");
+    return saved === "advanced" ? "advanced" : "starter";
+  });
   const [isMobileViewport, setIsMobileViewport] = useState(() => (
     typeof window !== "undefined" ? window.matchMedia("(max-width: 980px)").matches : false
   ));
@@ -3101,7 +3107,11 @@ export default function Aevum() {
   );
   const coachTrendBrief = trendIntelligence?.coachBrief || "";
   const coachContext = [coachTrendBrief, clinicalPlan?.coachContext].filter(Boolean).join(" ");
-  const Active = PAGES[page];
+  const visibleNav = useMemo(
+    () => (appMode === "advanced" ? NAV : NAV.filter((item) => STARTER_NAV_IDS.has(item.id))),
+    [appMode]
+  );
+  const Active = PAGES[page] || Overview;
   const currentPlanKey = normalizePlan(billingOverview?.plan || authUser?.plan || "free");
 
   const expireSession = (message = "Your session has expired. Sign in again to continue.") => {
@@ -3255,6 +3265,19 @@ export default function Aevum() {
       document.body.style.overflow = "";
     };
   }, [mobileNavOpen]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("aevum_mode", appMode);
+    }
+  }, [appMode]);
+
+  useEffect(() => {
+    if (appMode === "starter" && page === "enterprise") {
+      setPage("overview");
+      setStamp((s) => s + 1);
+    }
+  }, [appMode, page]);
 
   const refreshPlatformSummary = async () => {
     if (!authTokenState || !authUser) {
@@ -4500,6 +4523,10 @@ export default function Aevum() {
     },
   };
   const activeMeta = pageMeta[page] || pageMeta.overview;
+  const toggleMode = () => {
+    setAppMode((prev) => (prev === "starter" ? "advanced" : "starter"));
+    setMobileNavOpen(false);
+  };
 
   return (
     <div className="app-shell" style={{ minHeight:"100vh", background:C.void }}>
@@ -4565,7 +4592,7 @@ export default function Aevum() {
 
           {/* Nav */}
           <nav className="topbar-nav" style={{ display: isMobileViewport ? "none" : "flex", gap:0 }}>
-            {NAV.map(n => (
+            {visibleNav.map(n => (
               <button key={n.id} onClick={() => go(n.id)} style={{
                 background:"transparent", border:"none",
                 padding:"8px 18px", cursor:"pointer",
@@ -4583,6 +4610,25 @@ export default function Aevum() {
 
           {/* User */}
           <div className="topbar-user" style={{ display: isMobileViewport ? "none" : "flex", alignItems:"center", gap:14 }}>
+            <button
+              onClick={toggleMode}
+              className="mode-toggle-btn"
+              style={{
+                minHeight: 44,
+                borderRadius: 10,
+                border: `1px solid ${appMode === "advanced" ? C.goldBorder : C.border}`,
+                background: appMode === "advanced" ? `${C.gold}14` : C.surface,
+                color: appMode === "advanced" ? C.gold : C.platinumDim,
+                padding: "0 12px",
+                fontFamily: F.mono,
+                fontSize: 9,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+              }}
+            >
+              {appMode === "advanced" ? "Advanced" : "Starter"}
+            </button>
             <div style={{ textAlign:"right" }}>
               <div style={{ fontSize:12, color:C.cream, fontWeight:400 }}>{displayName}</div>
               <div style={{ fontFamily:F.mono, fontSize:9, color:C.gold,
@@ -4646,7 +4692,7 @@ export default function Aevum() {
               </div>
             </div>
             <nav className="mobile-drawer-nav">
-              {NAV.map((n) => (
+              {visibleNav.map((n) => (
                 <button
                   key={n.id}
                   onClick={() => go(n.id)}
@@ -4661,6 +4707,9 @@ export default function Aevum() {
                 </button>
               ))}
             </nav>
+            <button onClick={toggleMode} className="mobile-drawer-signout" style={{ marginTop: 4 }}>
+              Switch To {appMode === "advanced" ? "Starter" : "Advanced"} Mode
+            </button>
             <button onClick={handleLogout} className="mobile-drawer-signout">
               Sign Out
             </button>
@@ -4669,6 +4718,11 @@ export default function Aevum() {
       )}
 
       <section className="context-rail-wrap">
+        {appMode === "starter" && (
+          <div className="starter-flow-note">
+            Daily flow: Check Overview → Ask AI Coach → Execute Nutrition/Protocol → Review Insights.
+          </div>
+        )}
         <div className="context-rail">
           <div>
             <div className="context-rail-title">{activeMeta.title}</div>
@@ -4787,7 +4841,7 @@ export default function Aevum() {
 
       {isMobileViewport && (
         <nav className="mobile-tabbar">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <button
               key={n.id}
               onClick={() => go(n.id)}

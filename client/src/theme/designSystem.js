@@ -66,6 +66,16 @@ export const STYLES = `
     margin: 0 auto;
     padding: 16px 36px 10px;
   }
+  .starter-flow-note {
+    border: 1px solid ${C.border};
+    background: ${C.depth};
+    border-radius: 10px;
+    color: ${C.creamDim};
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
   .context-rail {
     display: flex;
     align-items: center;
@@ -286,6 +296,7 @@ export const STYLES = `
     .mobile-menu-toggle { display: inline-flex !important; }
 
     .context-rail-wrap { padding: 12px 12px 8px !important; }
+    .starter-flow-note { font-size: 11px !important; }
     .context-rail {
       flex-direction: column !important;
       align-items: flex-start !important;
