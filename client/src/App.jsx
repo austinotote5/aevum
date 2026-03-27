@@ -128,7 +128,7 @@ const AuthGate = ({ onAuthenticated, initialError = "" }) => {
     : form.email.trim() && form.password;
 
   return (
-    <div style={{
+    <div className="auth-shell" style={{
       minHeight: "100vh",
       background: `radial-gradient(circle at 20% 10%, ${C.gold}14 0%, transparent 35%), ${C.void}`,
       display: "flex",
@@ -137,7 +137,7 @@ const AuthGate = ({ onAuthenticated, initialError = "" }) => {
       padding: "24px",
     }}>
       <style>{STYLES}</style>
-      <div style={{
+      <div className="auth-card" style={{
         width: "100%",
         maxWidth: 520,
         background: `linear-gradient(170deg, ${C.surface} 0%, ${C.depth} 100%)`,
@@ -155,7 +155,7 @@ const AuthGate = ({ onAuthenticated, initialError = "" }) => {
           Sign in to access biometric intelligence and secure AI coaching.
         </p>
 
-        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <div className="auth-mode-row" style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {["login", "register"].map((opt) => (
             <button
               key={opt}
@@ -180,7 +180,7 @@ const AuthGate = ({ onAuthenticated, initialError = "" }) => {
 
         <div style={{ display: "grid", gap: 12 }}>
           {mode === "register" && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="auth-register-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <input
                 value={form.firstName}
                 onChange={(e) => update("firstName", e.target.value)}
@@ -524,10 +524,10 @@ const Overview = ({
   };
 
   return (
-    <div style={{ padding:"40px 36px", maxWidth:1140, margin:"0 auto" }}>
+    <div className="page-shell" style={{ padding:"40px 36px", maxWidth:1140, margin:"0 auto" }}>
 
       {/* Hero Row */}
-      <div className="fu" style={{ display:"flex", justifyContent:"space-between",
+      <div className="fu overview-hero" style={{ display:"flex", justifyContent:"space-between",
         alignItems:"flex-start", marginBottom:12 }}>
         <div style={{ flex:1 }}>
           <div style={{ fontFamily:F.mono, fontSize:9, letterSpacing:"0.22em",
@@ -541,7 +541,7 @@ const Overview = ({
             lineHeight:1.8, maxWidth:500, marginBottom:24 }}>
             Your body recovered above its 30-day baseline overnight. Parasympathetic activity was dominant for 6 of 7 sleep hours. Three high-leverage actions are prioritised for today.
           </p>
-          <div style={{ display:"flex", gap:10 }}>
+          <div className="overview-tags" style={{ display:"flex", gap:10 }}>
             <Tag>Peak Window Active</Tag>
             <Tag variant="emerald">Recovery: Optimal</Tag>
           </div>
@@ -554,7 +554,7 @@ const Overview = ({
       <Rule style={{ margin:"36px 0" }} />
 
       {/* Live Alert Banner */}
-      <div className="fu1" style={{
+      <div className="fu1 overview-alert" style={{
         background: `linear-gradient(135deg, ${C.surface} 0%, ${C.lift} 100%)`,
         border: `1px solid ${C.goldBorder}`,
         borderRadius: 6, padding: "16px 22px", marginBottom: 32,
@@ -576,7 +576,7 @@ const Overview = ({
       </div>
 
       {/* Metrics */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:32 }}>
+      <div className="overview-metrics" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:32 }}>
         <StatCard cls="fu1" label="Heart Rate Variability" value={toMetricText(hrvFallback, 0)} unit="ms"
           trend={hrvTrend.text} trendDir={hrvTrend.trendDir}
           note="Parasympathetic dominance. Nervous system well-regulated and ready for load." />
@@ -4368,7 +4368,7 @@ export default function Aevum() {
   const onBaaReviewStatusUpdate = handleUpdateBaaRequestStatus;
 
   return (
-    <div style={{ minHeight:"100vh", background:C.void }}>
+    <div className="app-shell" style={{ minHeight:"100vh", background:C.void }}>
       <style>{STYLES}</style>
 
       {/* Navbar */}
@@ -4377,7 +4377,7 @@ export default function Aevum() {
         background:`${C.void}F0`, backdropFilter:"blur(20px)",
         borderBottom:`1px solid ${C.border}`,
       }}>
-        <div style={{ maxWidth:1140, margin:"0 auto", padding:"0 36px",
+        <div className="topbar-inner" style={{ maxWidth:1140, margin:"0 auto", padding:"0 36px",
           height:62, display:"flex", alignItems:"center",
           justifyContent:"space-between" }}>
 
@@ -4405,7 +4405,7 @@ export default function Aevum() {
           </div>
 
           {/* Nav */}
-          <nav style={{ display:"flex", gap:0 }}>
+          <nav className="topbar-nav" style={{ display:"flex", gap:0 }}>
             {NAV.map(n => (
               <button key={n.id} onClick={() => go(n.id)} style={{
                 background:"transparent", border:"none",
@@ -4423,7 +4423,7 @@ export default function Aevum() {
           </nav>
 
           {/* User */}
-          <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <div className="topbar-user" style={{ display:"flex", alignItems:"center", gap:14 }}>
             <div style={{ textAlign:"right" }}>
               <div style={{ fontSize:12, color:C.cream, fontWeight:400 }}>{displayName}</div>
               <div style={{ fontFamily:F.mono, fontSize:9, color:C.gold,
@@ -4527,7 +4527,7 @@ export default function Aevum() {
       </main>
 
       {/* Footer */}
-      <footer style={{ borderTop:`1px solid ${C.border}`, background:C.depth,
+      <footer className="app-footer" style={{ borderTop:`1px solid ${C.border}`, background:C.depth,
         padding:"10px 36px", display:"flex", justifyContent:"space-between",
         alignItems:"center" }}>
         <div style={{ display:"flex", gap:24 }}>
