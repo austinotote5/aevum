@@ -30,7 +30,11 @@ validateCriticalEnv();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const configuredClientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+const configuredClientUrls = String(process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(',')
+  .map((url) => url.trim())
+  .filter(Boolean);
+const allowedOrigins = new Set(configuredClientUrls);
 const isDev = (process.env.NODE_ENV || 'development') !== 'production';
 
 app.use(helmet());
@@ -40,12 +44,19 @@ app.use(cors({
       return callback(null, true);
     }
 
-    if (origin === configuredClientUrl) {
+    if (allowedOrigins.has(origin)) {
       return callback(null, true);
     }
 
     const isLocalhostOrigin = /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/i.test(origin);
     if (isDev && isLocalhostOrigin) {
+      return callback(null, true);
+    }
+
+    // Allow Vercel production/preview domains in production to avoid brittle
+    // one-domain-only CORS failures during deploys and alias changes.
+    const isVercelDomain = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.vercel\.app$/i.test(origin);
+    if (!isDev && isVercelDomain) {
       return callback(null, true);
     }
 
