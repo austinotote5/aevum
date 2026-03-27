@@ -49,8 +49,91 @@ export const STYLES = `
   ::-webkit-scrollbar-track { background: ${C.void}; }
   ::-webkit-scrollbar-thumb { background: ${C.goldBorder}; border-radius: 2px; }
 
-  textarea, input, button { font-family: ${F.body}; }
+  textarea, input, button, select { font-family: ${F.body}; }
   textarea:focus, input:focus { outline: none; }
+  button, input, select, textarea { touch-action: manipulation; }
+  button { min-height: 42px; }
+  a, button, [role="button"], input, select, textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid ${C.gold};
+    outline-offset: 2px;
+  }
+
+  .context-rail-wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 16px 36px 10px;
+  }
+  .context-rail {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid ${C.border};
+    border-radius: 12px;
+    background: linear-gradient(145deg, ${C.surface} 0%, ${C.lift} 100%);
+  }
+  .context-rail-title {
+    color: ${C.cream};
+    font-family: ${F.display};
+    font-size: 22px;
+    line-height: 1.1;
+    margin-bottom: 5px;
+  }
+  .context-rail-subtitle {
+    color: ${C.creamDim};
+    font-size: 12px;
+    line-height: 1.6;
+    max-width: 700px;
+  }
+  .context-rail-action {
+    border: 1px solid ${C.goldBorder};
+    border-radius: 10px;
+    background: ${C.gold}18;
+    color: ${C.gold};
+    min-height: 46px;
+    padding: 0 16px;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-family: ${F.mono};
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .context-rail-action:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+  }
+  .trust-chip-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .trust-chip {
+    border: 1px solid ${C.border};
+    border-radius: 10px;
+    background: ${C.depth};
+    padding: 9px 10px;
+  }
+  .trust-chip-label {
+    display: block;
+    color: ${C.platinumMuted};
+    font-family: ${F.mono};
+    font-size: 8px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .trust-chip-value {
+    color: ${C.cream};
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 400;
+  }
 
   .mobile-drawer-overlay {
     position: fixed;
@@ -196,6 +279,20 @@ export const STYLES = `
     .topbar-user { display: none !important; }
     .mobile-menu-toggle { display: inline-flex !important; }
 
+    .context-rail-wrap { padding: 12px 12px 8px !important; }
+    .context-rail {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      padding: 12px !important;
+    }
+    .context-rail-title { font-size: 20px !important; }
+    .context-rail-subtitle { font-size: 11.5px !important; }
+    .context-rail-action { width: 100%; min-height: 48px; }
+    .trust-chip-row {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+    }
+
     .page-shell { padding: 20px 12px 104px !important; }
     .ticker-shell { display: none; }
     .app-main { padding-bottom: 92px; }
@@ -229,5 +326,6 @@ export const STYLES = `
       row-gap: 8px;
     }
     .overview-metrics { grid-template-columns: 1fr !important; }
+    .trust-chip-row { grid-template-columns: 1fr !important; }
   }
 `;

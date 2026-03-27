@@ -1149,7 +1149,7 @@ const Insights = ({
   };
 
   return (
-    <div style={{ padding: '40px 36px', maxWidth: 1140, margin: '0 auto' }}>
+    <div className="page-shell" style={{ padding: '40px 36px', maxWidth: 1140, margin: '0 auto' }}>
       <div className="fu" style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
           <div style={{ fontFamily: F.mono, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: C.platinumMuted, marginBottom: 10 }}>
@@ -1676,7 +1676,7 @@ const Insights = ({
 };
 
 const Nutrition = () => (
-  <div style={{ padding:"40px 36px", maxWidth:1140, margin:"0 auto" }}>
+  <div className="page-shell" style={{ padding:"40px 36px", maxWidth:1140, margin:"0 auto" }}>
     <div className="fu" style={{ marginBottom:36 }}>
       <div style={{ fontFamily:F.mono, fontSize:9, letterSpacing:"0.2em",
         textTransform:"uppercase", color:C.platinumMuted, marginBottom:10 }}>Biochemical Nutrition Protocol</div>
@@ -2172,7 +2172,7 @@ const Enterprise = ({
   };
 
   return (
-    <div style={{ padding:"40px 36px", maxWidth:1140, margin:"0 auto" }}>
+    <div className="page-shell" style={{ padding:"40px 36px", maxWidth:1140, margin:"0 auto" }}>
       <div className="fu" style={{ marginBottom:36 }}>
         <Tag>Enterprise Platform</Tag>
         <h2 style={{ fontFamily:F.display, fontSize:38, fontWeight:400,
@@ -3051,6 +3051,7 @@ export default function Aevum() {
     typeof window !== "undefined" ? window.matchMedia("(max-width: 980px)").matches : false
   ));
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [contextActionBusy, setContextActionBusy] = useState(false);
   const [authTokenState, setAuthTokenState] = useState(() => getAuthToken());
   const [authUser, setAuthUser] = useState(null);
   const [authHydrating, setAuthHydrating] = useState(() => Boolean(getAuthToken()));
@@ -4366,6 +4367,61 @@ export default function Aevum() {
     });
   };
 
+  const refreshOverviewBundle = async () => {
+    if (!authTokenState) return;
+    const [latest, recent, outcomes, plan] = await Promise.all([
+      biometricsApi.latest(authTokenState),
+      biometricsApi.recent(authTokenState, 60),
+      outcomesApi.summary(authTokenState),
+      protocolsApi.today(authTokenState),
+    ]);
+    setBiometricLatest(latest || null);
+    setBiometricsRecent(Array.isArray(recent) ? recent : []);
+    setOutcomesSummary(outcomes || null);
+    setClinicalPlan(plan || null);
+    setBiometricsError("");
+    setOutcomesError("");
+    setClinicalPlanError("");
+  };
+
+  const refreshClinicalPlanBundle = async () => {
+    if (!authTokenState) return;
+    const plan = await protocolsApi.today(authTokenState, true);
+    setClinicalPlan(plan || null);
+    setClinicalPlanError("");
+  };
+
+  const runContextAction = async () => {
+    if (contextActionBusy) return;
+    setContextActionBusy(true);
+    try {
+      if (page === "overview") {
+        await refreshOverviewBundle();
+      } else if (page === "coach") {
+        go("overview");
+      } else if (page === "insights") {
+        await refreshOutcomes();
+      } else if (page === "nutrition") {
+        await refreshClinicalPlanBundle();
+      } else if (page === "enterprise") {
+        await Promise.all([
+          refreshPlatformSummary(),
+          refreshEvidenceConsole(),
+          refreshCompliance(),
+          refreshOps(),
+        ]);
+      }
+    } catch (err) {
+      if (err?.status === 401) {
+        expireSession();
+      } else if (page === "overview") {
+        setBiometricsError(err?.message || "Unable to refresh daily signals.");
+      }
+    } finally {
+      setContextActionBusy(false);
+    }
+  };
+
   if (authHydrating) {
     return <BootScreen />;
   }
@@ -4399,6 +4455,51 @@ export default function Aevum() {
     },
   ];
   const onBaaReviewStatusUpdate = handleUpdateBaaRequestStatus;
+  const readinessLabel = Number.isFinite(Number(biometricLatest?.readinessScore))
+    ? `${Math.round(Number(biometricLatest?.readinessScore))}/100`
+    : "Calibrating";
+  const confidenceScore = Number.isFinite(Number(outcomesSummary?.aggregateScore))
+    ? Math.round(Number(outcomesSummary.aggregateScore))
+    : null;
+  const confidenceLabel = confidenceScore === null
+    ? "Calibrating"
+    : confidenceScore >= 80
+      ? `High (${confidenceScore}%)`
+      : confidenceScore >= 60
+        ? `Moderate (${confidenceScore}%)`
+        : `Building (${confidenceScore}%)`;
+  const safetyLabel = String(clinicalPlan?.safety?.status || "clear").toUpperCase();
+  const freshnessLabel = latestWearableSync
+    ? `Synced ${formatRecordedStamp(latestWearableSync)}`
+    : "Awaiting sync";
+  const pageMeta = {
+    overview: {
+      title: "Daily Command",
+      subtitle: "Prioritize today’s highest-leverage actions with confidence.",
+      action: "Refresh Daily Signals",
+    },
+    coach: {
+      title: "AI Coach",
+      subtitle: "High-context guidance mapped to your current physiology.",
+      action: "Back To Overview",
+    },
+    insights: {
+      title: "Signal Intelligence",
+      subtitle: "Trends, anomalies, and risk trajectories across windows.",
+      action: "Refresh Insights",
+    },
+    nutrition: {
+      title: "Nutrition Protocol",
+      subtitle: "Meal and supplement architecture aligned to today’s readiness.",
+      action: "Regenerate Protocol",
+    },
+    enterprise: {
+      title: "Enterprise Command",
+      subtitle: "Cohort safety, reliability, monetization, and evidence control.",
+      action: "Refresh Command",
+    },
+  };
+  const activeMeta = pageMeta[page] || pageMeta.overview;
 
   return (
     <div className="app-shell" style={{ minHeight:"100vh", background:C.void }}>
@@ -4566,6 +4667,40 @@ export default function Aevum() {
           </aside>
         </>
       )}
+
+      <section className="context-rail-wrap">
+        <div className="context-rail">
+          <div>
+            <div className="context-rail-title">{activeMeta.title}</div>
+            <div className="context-rail-subtitle">{activeMeta.subtitle}</div>
+          </div>
+          <button
+            onClick={runContextAction}
+            disabled={contextActionBusy}
+            className="context-rail-action"
+          >
+            {contextActionBusy ? "Processing..." : activeMeta.action}
+          </button>
+        </div>
+        <div className="trust-chip-row">
+          <div className="trust-chip">
+            <span className="trust-chip-label">Data Freshness</span>
+            <span className="trust-chip-value">{freshnessLabel}</span>
+          </div>
+          <div className="trust-chip">
+            <span className="trust-chip-label">Readiness</span>
+            <span className="trust-chip-value">{readinessLabel}</span>
+          </div>
+          <div className="trust-chip">
+            <span className="trust-chip-label">Confidence</span>
+            <span className="trust-chip-value">{confidenceLabel}</span>
+          </div>
+          <div className="trust-chip">
+            <span className="trust-chip-label">Safety</span>
+            <span className="trust-chip-value">{safetyLabel}</span>
+          </div>
+        </div>
+      </section>
 
       {/* Ticker */}
       <div className="ticker-shell">
