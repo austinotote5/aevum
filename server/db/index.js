@@ -59,11 +59,47 @@ const buildPoolConfig = () => {
   };
 };
 
+const getDbRuntimeSummary = (config) => {
+  if (config.connectionString) {
+    try {
+      const parsed = new URL(config.connectionString);
+      return {
+        source: 'DATABASE_URL',
+        host: parsed.hostname || 'unknown',
+        port: parsed.port || 'default',
+        user: decodeURIComponent(parsed.username || 'unknown'),
+        database: parsed.pathname ? parsed.pathname.replace(/^\//, '') : 'unknown',
+      };
+    } catch {
+      return {
+        source: 'DATABASE_URL',
+        host: 'invalid',
+        port: 'invalid',
+        user: 'invalid',
+        database: 'invalid',
+      };
+    }
+  }
+
+  return {
+    source: 'DB_* env',
+    host: config.host || 'unknown',
+    port: String(config.port || 'unknown'),
+    user: config.user || 'unknown',
+    database: config.database || 'unknown',
+  };
+};
+
 // Pool maintains a set of reusable database connections.
 // Creating a new connection per request is expensive (~50ms each).
 // A pool keeps connections alive and hands them out on demand —
 // dramatically faster under any real user load.
-const pool = new Pool(buildPoolConfig());
+const poolConfig = buildPoolConfig();
+const pool = new Pool(poolConfig);
+const dbRuntime = getDbRuntimeSummary(poolConfig);
+console.log(
+  `[DB] Runtime config source=${dbRuntime.source} host=${dbRuntime.host} port=${dbRuntime.port} user=${dbRuntime.user} database=${dbRuntime.database}`
+);
 
 // Test the connection on startup — fail loudly rather than silently
 pool.connect((err, client, release) => {
