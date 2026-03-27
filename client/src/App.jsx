@@ -3047,6 +3047,10 @@ const NAV   = [
 export default function Aevum() {
   const [page, setPage] = useState("overview");
   const [stamp, setStamp] = useState(0);
+  const [isMobileViewport, setIsMobileViewport] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 980px)").matches : false
+  ));
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [authTokenState, setAuthTokenState] = useState(() => getAuthToken());
   const [authUser, setAuthUser] = useState(null);
   const [authHydrating, setAuthHydrating] = useState(() => Boolean(getAuthToken()));
@@ -3222,6 +3226,34 @@ export default function Aevum() {
       mounted = false;
     };
   }, [authTokenState, authUser]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const query = window.matchMedia("(max-width: 980px)");
+    const onChange = (event) => {
+      setIsMobileViewport(event.matches);
+      if (!event.matches) {
+        setMobileNavOpen(false);
+      }
+    };
+
+    setIsMobileViewport(query.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return undefined;
+    }
+    document.body.style.overflow = mobileNavOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileNavOpen]);
 
   const refreshPlatformSummary = async () => {
     if (!authTokenState || !authUser) {
@@ -3713,6 +3745,7 @@ export default function Aevum() {
   const go = useCallback((id) => {
     setPage(id);
     setStamp((s) => s + 1);
+    setMobileNavOpen(false);
   }, []);
   const displayName = authUser?.firstName || "Member";
   const avatarInitial = displayName.slice(0, 1).toUpperCase() || "A";
@@ -4404,8 +4437,33 @@ export default function Aevum() {
             </div>
           </div>
 
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setMobileNavOpen((prev) => !prev)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileNavOpen}
+            style={{
+              display: isMobileViewport ? "inline-flex" : "none",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 46,
+              height: 46,
+              borderRadius: 12,
+              border: `1px solid ${C.goldBorder}`,
+              background: `${C.gold}18`,
+              color: C.gold,
+              cursor: "pointer",
+            }}
+          >
+            <span style={{ display: "grid", gap: 5 }}>
+              <span style={{ width: 18, height: 1.5, background: C.gold }} />
+              <span style={{ width: 18, height: 1.5, background: C.gold }} />
+              <span style={{ width: 18, height: 1.5, background: C.gold }} />
+            </span>
+          </button>
+
           {/* Nav */}
-          <nav className="topbar-nav" style={{ display:"flex", gap:0 }}>
+          <nav className="topbar-nav" style={{ display: isMobileViewport ? "none" : "flex", gap:0 }}>
             {NAV.map(n => (
               <button key={n.id} onClick={() => go(n.id)} style={{
                 background:"transparent", border:"none",
@@ -4423,7 +4481,7 @@ export default function Aevum() {
           </nav>
 
           {/* User */}
-          <div className="topbar-user" style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <div className="topbar-user" style={{ display: isMobileViewport ? "none" : "flex", alignItems:"center", gap:14 }}>
             <div style={{ textAlign:"right" }}>
               <div style={{ fontSize:12, color:C.cream, fontWeight:400 }}>{displayName}</div>
               <div style={{ fontFamily:F.mono, fontSize:9, color:C.gold,
@@ -4445,11 +4503,77 @@ export default function Aevum() {
         </div>
       </header>
 
+      {isMobileViewport && (
+        <>
+          <div
+            className={`mobile-drawer-overlay ${mobileNavOpen ? "open" : ""}`}
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <aside className={`mobile-drawer ${mobileNavOpen ? "open" : ""}`}>
+            <div className="mobile-drawer-head">
+              <div>
+                <div style={{ fontFamily: F.display, fontSize: 22, color: C.cream, lineHeight: 1 }}>AEVUM</div>
+                <div style={{ fontFamily: F.mono, fontSize: 9, color: C.platinumMuted, letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 4 }}>
+                  Health Intelligence
+                </div>
+              </div>
+              <button
+                onClick={() => setMobileNavOpen(false)}
+                aria-label="Close navigation menu"
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  border: `1px solid ${C.border}`,
+                  background: C.surface,
+                  color: C.cream,
+                  cursor: "pointer",
+                  fontSize: 20,
+                  lineHeight: 1,
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div className="mobile-drawer-user">
+              <div style={{ width: 42, height: 42, borderRadius: "50%", border: `1px solid ${C.goldBorder}`, background: `${C.gold}14`, display: "flex", alignItems: "center", justifyContent: "center", color: C.gold, fontFamily: F.display }}>
+                {avatarInitial}
+              </div>
+              <div>
+                <div style={{ color: C.cream, fontSize: 14 }}>{displayName}</div>
+                <div style={{ color: C.platinumMuted, fontFamily: F.mono, fontSize: 10, letterSpacing: "0.08em" }}>Vital Index | 82</div>
+              </div>
+            </div>
+            <nav className="mobile-drawer-nav">
+              {NAV.map((n) => (
+                <button
+                  key={n.id}
+                  onClick={() => go(n.id)}
+                  className="mobile-drawer-nav-item"
+                  style={{
+                    borderColor: page === n.id ? C.goldBorder : C.border,
+                    color: page === n.id ? C.gold : C.cream,
+                    background: page === n.id ? `${C.gold}12` : C.surface,
+                  }}
+                >
+                  {n.label}
+                </button>
+              ))}
+            </nav>
+            <button onClick={handleLogout} className="mobile-drawer-signout">
+              Sign Out
+            </button>
+          </aside>
+        </>
+      )}
+
       {/* Ticker */}
-      <Ticker />
+      <div className="ticker-shell">
+        <Ticker />
+      </div>
 
       {/* Page */}
-      <main key={stamp} style={{ animation:"fadeIn .28s ease both" }}>
+      <main key={stamp} className="app-main" style={{ animation:"fadeIn .28s ease both" }}>
         <Profiler id={`aevum:${page}`} onRender={onAppRenderProfile}>
           <Active
             authToken={authTokenState}
@@ -4525,6 +4649,20 @@ export default function Aevum() {
           />
         </Profiler>
       </main>
+
+      {isMobileViewport && (
+        <nav className="mobile-tabbar">
+          {NAV.map((n) => (
+            <button
+              key={n.id}
+              onClick={() => go(n.id)}
+              className={`mobile-tabbar-item ${page === n.id ? "active" : ""}`}
+            >
+              {n.label}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {/* Footer */}
       <footer className="app-footer" style={{ borderTop:`1px solid ${C.border}`, background:C.depth,
