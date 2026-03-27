@@ -143,6 +143,7 @@ export const STYLES = `
     pointer-events: none;
     transition: opacity .25s ease;
     z-index: 320;
+    touch-action: none;
   }
 
   .mobile-drawer-overlay.open {
@@ -166,9 +167,13 @@ export const STYLES = `
     display: flex;
     flex-direction: column;
     gap: 14px;
+    pointer-events: none;
   }
 
-  .mobile-drawer.open { transform: translateX(0); }
+  .mobile-drawer.open {
+    transform: translateX(0);
+    pointer-events: auto;
+  }
   .mobile-drawer-head { display: flex; align-items: center; justify-content: space-between; }
   .mobile-drawer-user {
     display: flex;
@@ -221,10 +226,11 @@ export const STYLES = `
     background: linear-gradient(180deg, rgba(10,10,14,0.92) 0%, rgba(6,6,8,0.97) 100%);
     border-top: 1px solid ${C.border};
     backdrop-filter: blur(16px);
+    pointer-events: auto;
   }
 
   .mobile-tabbar-item {
-    min-height: 46px;
+    min-height: 48px;
     border-radius: 12px;
     border: 1px solid ${C.border};
     background: ${C.surface};
@@ -295,7 +301,12 @@ export const STYLES = `
 
     .page-shell { padding: 20px 12px 104px !important; }
     .ticker-shell { display: none; }
-    .app-main { padding-bottom: 92px; }
+    .app-main {
+      padding-bottom: 92px;
+      position: relative;
+      z-index: 1;
+    }
+    .context-rail-wrap { position: relative; z-index: 2; }
     .overview-hero { flex-direction: column !important; gap: 18px; align-items: flex-start !important; }
     .overview-tags { flex-wrap: wrap; }
     .overview-alert {
