@@ -1,4 +1,8 @@
-const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:4000').replace(/\/+$/, '');
+const API_BASE_URL = (
+  process.env.REACT_APP_API_BASE_URL
+  || process.env.REACT_APP_API_URL
+  || 'http://localhost:4000'
+).replace(/\/+$/, '');
 const AUTH_TOKEN_KEY = 'aevum_auth_token';
 const MAX_GET_RETRY_ATTEMPTS = 2;
 
